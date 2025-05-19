@@ -14,6 +14,7 @@ Bachelor of Science in Computer Science
 
 - [Project Overview](#project-overview)
 - [Features Implemented](#features-implemented)
+- [Screenshots and Page Explanations](#screenshots-and-page-explanations)
 - [Django Concepts Demonstrated](#django-concepts-demonstrated)
 - [Requirements](#requirements)
 - [How to Run the Project](#how-to-run-the-project)
@@ -21,7 +22,6 @@ Bachelor of Science in Computer Science
 - [Data Validation and Error Handling](#data-validation-and-error-handling)
 - [Design and Styling](#design-and-styling)
 - [Documentation](#documentation)
-- [Screenshots and Page Explanations](#screenshots-and-page-explanations)
 - [How to Contribute](#how-to-contribute)
 - [Acknowledgements](#acknowledgements)
 
