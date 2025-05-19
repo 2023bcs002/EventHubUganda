@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ category.name }} - Blog Categories{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">Posts in {{ category.name }}</h1>
+            <p class="text-muted mb-4">{{ category.description }}</p>
+        </div>
+    </div>
+
+    <div class="row">
+        {% if posts %}
+            {% for post in posts %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    {% if post.image %}
+                    <img src="{{ post.image.url }}" class="card-img-top" alt="{{ post.title }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ post.title }}</h5>
+                        <p class="card-text text-muted">
+                            <small>Posted by {{ post.author.username }} on {{ post.created_at|date:"F j, Y" }}</small>
+                        </p>
+                        <p class="card-text">{{ post.content|safe|truncatewords:30 }}</p>
+                        <a href="{% url 'blog:post_detail' slug=post.slug %}" class="btn btn-primary">Read More</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+            {% if posts.has_other_pages %}
+            <div class="col-12">
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if posts.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ posts.previous_page_number }}">&laquo; Previous</a>
+                        </li>
+                        {% endif %}
+
+                        {% for num in posts.paginator.page_range %}
+                            {% if posts.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                            {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if posts.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ posts.next_page_number }}">Next &raquo;</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    No posts found in this category.
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <a href="{% url 'blog:post_list' %}" class="btn btn-secondary">&larr; Back to All Posts</a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

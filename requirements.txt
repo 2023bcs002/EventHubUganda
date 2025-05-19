@@ -1,0 +1,8 @@
+Django==5.2.1
+django-crispy-forms==2.0
+crispy-bootstrap4==2022.1
+Pillow==10.0.0
+python-dotenv==1.0.0
+django-allauth==0.58.2
+django-ckeditor==6.5.1
+django-widget-tweaks==1.4.12

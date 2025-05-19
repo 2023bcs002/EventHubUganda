@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load currency_tags %}
+
+{% block title %}{{ event.title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <nav aria-label="breadcrumb" class="mt-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'events:event_list' %}">Events</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'events:category_events' event.category.slug %}">{{ event.category.name }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ event.title }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Event Details -->
+        <div class="col-md-8">
+            <div class="card">
+                {% if event.image %}
+                    <img src="{{ event.image.url }}" class="card-img-top" alt="{{ event.title }}">
+                {% endif %}
+                <div class="card-body">
+                    <h1 class="card-title">{{ event.title }}</h1>
+                    
+                    <div class="mb-4">
+                        <span class="badge bg-primary">{{ event.category.name }}</span>
+                        <span class="badge {% if event.is_full %}bg-danger{% else %}bg-success{% endif %}">
+                            {{ event.available_seats }} seats left
+                        </span>
+                        <span class="badge bg-info">{% currency_symbol %} {{ event.price|ugx }}</span>
+                    </div>
+
+                    <h5>Event Details</h5>
+                    <div class="mb-4">
+                        <p><strong>Date:</strong> {{ event.start_date|date:"F d, Y" }}</p>
+                        <p><strong>Time:</strong> {{ event.start_date|time:"g:i A" }} - {{ event.end_date|time:"g:i A" }}</p>
+                        <p><strong>Venue:</strong> {{ event.venue }}</p>
+                        <p><strong>Address:</strong> {{ event.address }}</p>
+                    </div>
+
+                    <h5>Description</h5>
+                    <div class="mb-4">
+                        {{ event.description|safe }}
+                    </div>
+
+                    {% if user.is_authenticated %}
+                        <div class="d-grid gap-2">
+                            {% if not user_registered and not event.is_full %}
+                                <a href="{% url 'events:event_register' event.slug %}" class="btn btn-success">Register for Event</a>
+                            {% elif user_registered %}
+                                <div class="alert alert-info">You are registered for this event!</div>
+                            {% elif event.is_full %}
+                                <div class="alert alert-warning">This event is full.</div>
+                            {% endif %}
+
+                            {% if user == event.organizer or user.is_staff %}
+                                <div class="btn-group">
+                                    <a href="{% url 'events:event_edit' event.slug %}" class="btn btn-primary">Edit Event</a>
+                                    <a href="{% url 'events:event_delete' event.slug %}" class="btn btn-danger">Delete Event</a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            Please <a href="{% url 'account_login' %}">log in</a> to register for this event.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Organizer</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-0">{{ event.organizer.get_full_name|default:event.organizer.username }}</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Other Events in {{ event.category.name }}</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        {% for related_event in event.category.events.all|slice:":5" %}
+                            {% if related_event != event %}
+                                <li class="mb-2">
+                                    <a href="{% url 'events:event_detail' related_event.slug %}" class="text-decoration-none">
+                                        {{ related_event.title }}
+                                    </a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

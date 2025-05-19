@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load store_extras %}
+{% load currency_tags %}
+
+{% block title %}Order #{{ order.order_number }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'store:order_list' %}">My Orders</a></li>
+            <li class="breadcrumb-item active">Order #{{ order.order_number }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Order Summary -->
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Order Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Order Number:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            {{ order.order_number }}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Order Date:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            {{ order.created_at|date:"F d, Y H:i" }}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Status:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            <span class="badge {% if order.status == 'delivered' %}bg-success
+                                       {% elif order.status == 'processing' %}bg-primary
+                                       {% elif order.status == 'shipped' %}bg-info
+                                       {% elif order.status == 'cancelled' %}bg-danger
+                                       {% else %}bg-warning{% endif %}">
+                                {{ order.status|title }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Total Amount:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            <h3 class="text-primary">{% currency_symbol %} {{ order.total_amount|ugx }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Items -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Order Items</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in order.items.all %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if item.product.image %}
+                                            <img src="{{ item.product.image.url }}" 
+                                                 alt="{{ item.product.name }}" 
+                                                 class="img-thumbnail me-3" 
+                                                 style="width: 50px;">
+                                            {% endif %}
+                                            <div>
+                                                <h6 class="mb-0">{{ item.product.name }}</h6>
+                                                <small class="text-muted">{{ item.product.category.name }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{% currency_symbol %} {{ item.price|ugx }}</td>
+                                    <td>{{ item.quantity }}</td>
+                                    <td>{% currency_symbol %} {{ item.price|multiply:item.quantity|ugx }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" class="text-end">
+                                        <strong>Total:</strong>
+                                    </td>
+                                    <td>
+                                        <strong>{% currency_symbol %} {{ order.total_amount|ugx }}</strong>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shipping Information -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Shipping Information</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Shipping Address:</strong></p>
+                    <p class="mb-3">{{ order.shipping_address|linebreaks }}</p>
+                    
+                    <p><strong>Phone Number:</strong></p>
+                    <p>{{ order.phone_number }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

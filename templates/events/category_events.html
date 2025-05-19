@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load currency_tags %}
+
+{% block title %}{{ category.name }} Events{% endblock %}
+
+{% block content %}
+<div class="container">
+    <nav aria-label="breadcrumb" class="mt-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'events:event_list' %}">Events</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ category.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Category Details</h5>
+                </div>
+                <div class="card-body">
+                    <h4>{{ category.name }}</h4>
+                    {% if category.description %}
+                        <p class="mb-0">{{ category.description }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if user.is_authenticated %}
+                <div class="d-grid">
+                    <a href="{% url 'events:event_create' %}" class="btn btn-success">Create New Event</a>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Main content -->
+        <div class="col-md-9">
+            <h1 class="mb-4">{{ category.name }} Events</h1>
+            
+            {% if events %}
+                <div class="row">
+                    {% for event in events %}
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100">
+                                {% if event.image %}
+                                    <img src="{{ event.image.url }}" class="card-img-top" alt="{{ event.title }}">
+                                {% else %}
+                                    <img src="{% static 'images/no-event-image.png' %}" class="card-img-top" alt="No image available">
+                                {% endif %}
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ event.title }}</h5>
+                                    <p class="card-text text-muted">
+                                        <small>
+                                            Date: {{ event.start_date|date:"F d, Y" }}<br>
+                                            Time: {{ event.start_date|time:"g:i A" }} - {{ event.end_date|time:"g:i A" }}<br>
+                                            Venue: {{ event.venue }}
+                                        </small>
+                                    </p>
+                                    <p class="card-text">{{ event.description|truncatewords:30|safe }}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="badge {% if event.is_full %}bg-danger{% else %}bg-success{% endif %}">
+                                            {{ event.available_seats }} seats left
+                                        </span>
+                                        <strong>{% currency_symbol %} {{ event.price|ugx }}</strong>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-transparent">
+                                    <div class="d-grid">
+                                        <a href="{% url 'events:event_detail' event.slug %}" class="btn btn-primary">View Details</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info">No events found in this category.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

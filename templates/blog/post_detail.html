@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ post.title }} - Blog{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <article class="blog-post">
+        <div class="card shadow-sm">
+            {% if post.image %}
+            <img src="{{ post.image.url }}" class="card-img-top" alt="{{ post.title }}">
+            {% endif %}
+            <div class="card-body">
+                <h1 class="card-title">{{ post.title }}</h1>
+                <div class="post-meta text-muted mb-3">
+                    <small>
+                        Posted by {{ post.author.username }} on {{ post.created_at|date:"F j, Y" }}
+                        {% if post.category %}
+                        in <a href="{% url 'blog:category_posts' slug=post.category.slug %}">{{ post.category.name }}</a>
+                        {% endif %}
+                    </small>
+                </div>
+                
+                <div class="post-content">
+                    {{ post.content|safe }}
+                </div>
+
+                {% if user.is_authenticated and user == post.author or user.is_staff %}
+                <div class="mt-4">
+                    <a href="{% url 'blog:post_edit' slug=post.slug %}" class="btn btn-primary btn-sm">Edit Post</a>
+                    <a href="{% url 'blog:post_delete' slug=post.slug %}" class="btn btn-danger btn-sm">Delete Post</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Comments Section -->
+        <div class="comments-section mt-5">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h3 class="mb-0">Comments</h3>
+                </div>
+                <div class="card-body">
+                    {% if comments %}
+                        {% for comment in comments %}
+                        <div class="comment mb-4 pb-3 {% if not forloop.last %}border-bottom{% endif %}">
+                            <div class="comment-meta text-muted mb-2">
+                                <small>{{ comment.author.username }} - {{ comment.created_at|date:"F j, Y" }}</small>
+                            </div>
+                            <p class="card-text mb-0">{{ comment.content }}</p>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">No comments yet. Be the first to comment!</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Comment Form -->
+            <div class="mt-4">
+                {% if user.is_authenticated %}
+                <div class="card shadow-sm">
+                    <div class="card-header bg-light">
+                        <h4 class="mb-0">Add a Comment</h4>
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            {{ comment_form|crispy }}
+                            <button type="submit" class="btn btn-primary mt-3">Submit Comment</button>
+                        </form>
+                    </div>
+                </div>
+                {% else %}
+                <div class="alert alert-info" role="alert">
+                    <i class="fas fa-info-circle"></i> Want to join the discussion? 
+                    <a href="{% url 'account_login' %}?next={{ request.path }}" class="alert-link">Sign in</a> or 
+                    <a href="{% url 'account_signup' %}?next={{ request.path }}" class="alert-link">create an account</a> to leave a comment.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </article>
+
+    <div class="mt-4">
+        <a href="{% url 'blog:post_list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Blog Posts
+        </a>
+    </div>
+</div>
+{% endblock %} 

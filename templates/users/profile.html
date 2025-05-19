@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ user.username }}'s Profile{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h1 class="h4 mb-0">User Profile</h1>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-4">
+                            <div class="avatar-circle mb-3">
+                                <i class="fas fa-user fa-4x text-secondary"></i>
+                            </div>
+                            <h5>{{ user.get_full_name|default:user.username }}</h5>
+                            <p class="text-muted">Member since {{ user.date_joined|date:"F Y" }}</p>
+                        </div>
+                        <div class="col-md-8">
+                            <h5>Account Information</h5>
+                            <hr>
+                            <p><strong>Username:</strong> {{ user.username }}</p>
+                            <p><strong>Email:</strong> {{ user.email }}</p>
+                            {% if user.get_full_name %}
+                                <p><strong>Full Name:</strong> {{ user.get_full_name }}</p>
+                            {% endif %}
+                            <p><strong>Last Login:</strong> {{ user.last_login|date:"F d, Y H:i" }}</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <h5>Activity Summary</h5>
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h3 class="mb-0">{{ user.event_registrations.count }}</h3>
+                                        <p class="text-muted mb-0">Event Registrations</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h3 class="mb-0">{{ user.organized_events.count }}</h3>
+                                        <p class="text-muted mb-0">Events Organized</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h3 class="mb-0">{{ user.orders.count }}</h3>
+                                        <p class="text-muted mb-0">Orders Placed</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <h5>Account Actions</h5>
+                        <hr>
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'account_email' %}" class="btn btn-primary">Manage Email Settings</a>
+                            <a href="{% url 'account_change_password' %}" class="btn btn-secondary">Change Password</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.avatar-circle {
+    width: 100px;
+    height: 100px;
+    background-color: #f8f9fa;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+</style>
+{% endblock %} 

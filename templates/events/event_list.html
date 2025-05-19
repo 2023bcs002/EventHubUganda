@@ -1,0 +1,258 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load currency_tags %}
+
+{% block title %}Events - EventHub Uganda{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <!-- Sidebar with categories -->
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-list"></i> Event Categories</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        {% for category in categories %}
+                            <li class="mb-2">
+                                <a href="{% url 'events:category_events' category.slug %}" class="text-decoration-none">
+                                    <i class="fas fa-chevron-right"></i> {{ category.name }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            
+            {% if user.is_authenticated %}
+                <div class="d-grid gap-2">
+                    <a href="{% url 'events:event_create' %}" class="btn btn-success mb-3">
+                        <i class="fas fa-plus-circle"></i> Create New Event
+                    </a>
+                    <a href="{% url 'events:registration_list' %}" class="btn btn-info">
+                        <i class="fas fa-ticket-alt"></i> My Registrations
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Main content -->
+        <div class="col-md-9">
+            <!-- Debug Info -->
+            <div class="alert alert-info mb-4">
+                <h6 class="mb-2">Current Time: {{ now|date:"F d, Y H:i:s" }}</h6>
+                <small>
+                    Ongoing Events: {{ ongoing_events|length }} |
+                    Upcoming Events: {{ upcoming_events|length }} |
+                    Past Events: {{ past_events|length }}
+                </small>
+            </div>
+
+            <!-- Event Status Tabs -->
+            <ul class="nav nav-tabs mb-4">
+                <li class="nav-item">
+                    <a class="nav-link {% if ongoing_events %}active{% endif %}" href="#ongoing" data-bs-toggle="tab">
+                        <i class="fas fa-play-circle"></i> Ongoing Events
+                        {% if ongoing_events %}
+                            <span class="badge bg-primary">{{ ongoing_events|length }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if not ongoing_events and upcoming_events %}active{% endif %}" href="#upcoming" data-bs-toggle="tab">
+                        <i class="fas fa-calendar-alt"></i> Upcoming Events
+                        {% if upcoming_events %}
+                            <span class="badge bg-success">{{ upcoming_events|length }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if not ongoing_events and not upcoming_events %}active{% endif %}" href="#past" data-bs-toggle="tab">
+                        <i class="fas fa-history"></i> Past Events
+                        {% if past_events %}
+                            <span class="badge bg-secondary">{{ past_events|length }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Tab Content -->
+            <div class="tab-content">
+                <!-- Ongoing Events Tab -->
+                <div class="tab-pane fade {% if ongoing_events %}show active{% endif %}" id="ongoing">
+                    {% if ongoing_events %}
+                        <div class="row">
+                            {% for event in ongoing_events %}
+                                <div class="col-md-6 mb-4">
+                                    <div class="card h-100 border-primary">
+                                        <div class="card-header bg-primary text-white">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <h5 class="card-title mb-0">{{ event.title }}</h5>
+                                                <span class="badge bg-warning">
+                                                    <i class="fas fa-clock"></i> Ends in {{ event.end_date|timeuntil }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        {% if event.image %}
+                                            <img src="{{ event.image.url }}" class="card-img-top" alt="{{ event.title }}">
+                                        {% else %}
+                                            <img src="{% static 'images/no-event-image.png' %}" class="card-img-top" alt="No image available">
+                                        {% endif %}
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <span class="badge bg-info">
+                                                    <i class="fas fa-calendar"></i> Ends {{ event.end_date|date:"M d, Y" }} at {{ event.end_date|time:"g:i A" }}
+                                                </span>
+                                                {% if event.is_full %}
+                                                    <span class="badge bg-danger"><i class="fas fa-users"></i> Full</span>
+                                                {% else %}
+                                                    <span class="badge bg-success">
+                                                        <i class="fas fa-chair"></i> {{ event.available_seats }} seats left
+                                                    </span>
+                                                {% endif %}
+                                            </div>
+                                            <p class="card-text">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-map-marker-alt"></i> {{ event.venue }}<br>
+                                                    <i class="fas fa-tag"></i> {{ event.category.name }}
+                                                </small>
+                                            </p>
+                                            <p class="card-text">{{ event.description|truncatewords:30|safe }}</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <strong class="text-primary">{% currency_symbol %} {{ event.price|ugx }}</strong>
+                                                <a href="{% url 'events:event_detail' event.slug %}" class="btn btn-primary">
+                                                    <i class="fas fa-info-circle"></i> View Details
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> No events are currently ongoing.
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Upcoming Events Tab -->
+                <div class="tab-pane fade {% if not ongoing_events and upcoming_events %}show active{% endif %}" id="upcoming">
+                    {% if upcoming_events %}
+                        <div class="row">
+                            {% for event in upcoming_events %}
+                                <div class="col-md-6 mb-4">
+                                    <div class="card h-100 border-success">
+                                        <div class="card-header bg-success text-white">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <h5 class="card-title mb-0">{{ event.title }}</h5>
+                                                <span class="badge bg-info">
+                                                    <i class="fas fa-clock"></i> Starts in {{ event.start_date|timeuntil }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        {% if event.image %}
+                                            <img src="{{ event.image.url }}" class="card-img-top" alt="{{ event.title }}">
+                                        {% else %}
+                                            <img src="{% static 'images/no-event-image.png' %}" class="card-img-top" alt="No image available">
+                                        {% endif %}
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <span class="badge bg-primary">
+                                                    <i class="fas fa-clock"></i> {{ event.start_date|date:"M d, Y" }} at {{ event.start_date|time:"g:i A" }}
+                                                </span>
+                                                {% if event.is_full %}
+                                                    <span class="badge bg-danger"><i class="fas fa-users"></i> Full</span>
+                                                {% else %}
+                                                    <span class="badge bg-success">
+                                                        <i class="fas fa-chair"></i> {{ event.available_seats }} seats left
+                                                    </span>
+                                                {% endif %}
+                                            </div>
+                                            <p class="card-text">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-map-marker-alt"></i> {{ event.venue }}<br>
+                                                    <i class="fas fa-tag"></i> {{ event.category.name }}
+                                                </small>
+                                            </p>
+                                            <p class="card-text">{{ event.description|truncatewords:30|safe }}</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <strong class="text-success">{% currency_symbol %} {{ event.price|ugx }}</strong>
+                                                <a href="{% url 'events:event_detail' event.slug %}" class="btn btn-success">
+                                                    <i class="fas fa-ticket-alt"></i> Register Now
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> No upcoming events scheduled.
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Past Events Tab -->
+                <div class="tab-pane fade {% if not ongoing_events and not upcoming_events %}show active{% endif %}" id="past">
+                    {% if past_events %}
+                        <div class="row">
+                            {% for event in past_events %}
+                                <div class="col-md-6 mb-4">
+                                    <div class="card h-100 bg-light border-secondary">
+                                        <div class="card-header bg-secondary text-white">
+                                            <span class="badge bg-danger float-end">
+                                                <i class="fas fa-calendar-times"></i> Ended {{ event.end_date|date:"M d" }}
+                                            </span>
+                                            <h5 class="card-title mb-0 text-decoration-line-through">{{ event.title }}</h5>
+                                        </div>
+                                        {% if event.image %}
+                                            <img src="{{ event.image.url }}" class="card-img-top" style="opacity: 0.7;" alt="{{ event.title }}">
+                                        {% else %}
+                                            <img src="{% static 'images/no-event-image.png' %}" class="card-img-top" style="opacity: 0.7;" alt="No image available">
+                                        {% endif %}
+                                        <div class="card-body">
+                                            <p class="card-text text-muted">
+                                                <small>
+                                                    <i class="fas fa-calendar-times"></i> Ended: {{ event.end_date|date:"F d, Y" }} at {{ event.end_date|time:"g:i A" }}<br>
+                                                    <i class="fas fa-map-marker-alt"></i> {{ event.venue }}<br>
+                                                    <i class="fas fa-tag"></i> {{ event.category.name }}
+                                                </small>
+                                            </p>
+                                            <p class="card-text text-muted">{{ event.description|truncatewords:30|safe }}</p>
+                                            <div class="text-center">
+                                                <a href="{% url 'events:event_detail' event.slug %}" class="btn btn-secondary">
+                                                    <i class="fas fa-history"></i> View Past Event
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> No past events to display.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Initialize Bootstrap tabs
+    document.addEventListener('DOMContentLoaded', function() {
+        var triggerTabList = [].slice.call(document.querySelectorAll('a[data-bs-toggle="tab"]'))
+        triggerTabList.forEach(function(triggerEl) {
+            new bootstrap.Tab(triggerEl)
+        })
+    });
+</script>
+{% endblock %}
+{% endblock %} 

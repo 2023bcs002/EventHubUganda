@@ -1,0 +1,373 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}My Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="container">
+        <!-- Welcome Banner -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="welcome-banner text-center py-4">
+                    <h1 class="display-4 mb-0">Welcome, {{ user.username }}!</h1>
+                    <p class="lead text-muted">Member since {{ user.date_joined|date:"F j, Y" }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">Quick Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <!-- Blog Actions -->
+                            <div class="col-md-4">
+                                <div class="d-grid">
+                                    <a href="{% url 'blog:post_create' %}" class="btn btn-outline-primary">
+                                        <i class="fas fa-pen-to-square"></i> Create New Blog Post
+                                    </a>
+                                </div>
+                            </div>
+                            <!-- Event Actions -->
+                            <div class="col-md-4">
+                                <div class="d-grid">
+                                    <a href="{% url 'events:event_create' %}" class="btn btn-outline-success">
+                                        <i class="fas fa-calendar-plus"></i> Create New Event
+                                    </a>
+                                </div>
+                            </div>
+                            <!-- Store Actions -->
+                            <div class="col-md-4">
+                                <div class="d-grid">
+                                    <a href="{% url 'store:order_list' %}" class="btn btn-outline-info">
+                                        <i class="fas fa-shopping-bag"></i> View My Orders
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Left Column -->
+            <div class="col-md-4">
+                <!-- User Info Card -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <div class="text-center mb-3">
+                            <div class="avatar-circle mb-3">
+                                <i class="fas fa-user fa-3x text-primary"></i>
+                            </div>
+                        </div>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <i class="fas fa-newspaper text-primary"></i>
+                                <span>Total Posts: {{ total_posts }}</span>
+                            </div>
+                            <div class="stat-item">
+                                <i class="fas fa-comments text-success"></i>
+                                <span>Comments Made: {{ total_comments }}</span>
+                            </div>
+                            <div class="stat-item">
+                                <i class="fas fa-reply text-info"></i>
+                                <span>Comments Received: {{ total_comments_received }}</span>
+                            </div>
+                            {% if total_events %}
+                            <div class="stat-item">
+                                <i class="fas fa-calendar-check text-warning"></i>
+                                <span>Events Registered: {{ total_events }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="mt-3 d-grid">
+                            <a href="{% url 'users:profile' %}" class="btn btn-primary">
+                                <i class="fas fa-user-edit"></i> Edit Profile
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Events Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-calendar-alt"></i> Event Center
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Event Quick Actions -->
+                        <div class="d-grid gap-2 mb-4">
+                            <a href="{% url 'events:event_create' %}" class="btn btn-warning">
+                                <i class="fas fa-plus-circle"></i> Create New Event
+                            </a>
+                            <a href="{% url 'events:event_list' %}" class="btn btn-outline-warning">
+                                <i class="fas fa-search"></i> Browse All Events
+                            </a>
+                        </div>
+
+                        <!-- Registered Events Section -->
+                        <div class="mb-4">
+                            <h6 class="mb-3">My Registered Events</h6>
+                            {% if registrations %}
+                                <div class="list-group">
+                                    {% for registration in registrations %}
+                                        <a href="{% url 'events:event_detail' registration.event.slug %}" 
+                                           class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between align-items-center">
+                                                <div>
+                                                    <h6 class="mb-1">{{ registration.event.title }}</h6>
+                                                    <p class="mb-1 text-muted small">
+                                                        <i class="far fa-calendar"></i> {{ registration.event.start_date|date:"F d, Y" }}
+                                                        <i class="far fa-clock ml-2"></i> {{ registration.event.start_date|time:"g:i A" }}
+                                                    </p>
+                                                </div>
+                                                <span class="badge {% if registration.status == 'confirmed' %}bg-success{% elif registration.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %}">
+                                                    {{ registration.get_status_display }}
+                                                </span>
+                                            </div>
+                                        </a>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="text-center py-3">
+                                    <p class="text-muted mb-3">You haven't registered for any events yet.</p>
+                                    <a href="{% url 'events:event_list' %}" class="btn btn-warning">
+                                        <i class="fas fa-calendar-plus"></i> Find Events to Join
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Upcoming Events Section -->
+                        <div>
+                            <h6 class="mb-3">Upcoming Events</h6>
+                            {% if upcoming_events %}
+                                <div class="list-group">
+                                    {% for event in upcoming_events %}
+                                        <a href="{% url 'events:event_detail' event.slug %}" 
+                                           class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between align-items-center">
+                                                <div>
+                                                    <h6 class="mb-1">{{ event.title }}</h6>
+                                                    <p class="mb-1 text-muted small">
+                                                        <i class="far fa-calendar"></i> {{ event.start_date|date:"F d, Y" }}
+                                                        <i class="far fa-clock ml-2"></i> {{ event.start_date|time:"g:i A" }}
+                                                        {% if event.spots_left %}
+                                                            <span class="text-success ml-2">
+                                                                <i class="fas fa-user-friends"></i> {{ event.spots_left }} spots left
+                                                            </span>
+                                                        {% endif %}
+                                                    </p>
+                                                </div>
+                                                <i class="fas fa-chevron-right text-muted"></i>
+                                            </div>
+                                        </a>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="text-center py-3">
+                                    <p class="text-muted">No upcoming events available at the moment.</p>
+                                    <p class="text-muted">Check back later for new events!</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-md-8">
+                <!-- Blog Posts Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-newspaper"></i> My Blog Posts
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% if posts %}
+                            {% for post in posts_with_comments %}
+                            <div class="post-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6><a href="{% url 'blog:post_detail' slug=post.slug %}">{{ post.title }}</a></h6>
+                                        <p class="text-muted small mb-2">
+                                            <i class="fas fa-clock"></i> {{ post.created_at|date:"F j, Y" }}
+                                            <span class="badge {% if post.status == 'published' %}bg-success{% else %}bg-warning{% endif %}">
+                                                {{ post.status|title }}
+                                            </span>
+                                        </p>
+                                    </div>
+                                    <span class="badge bg-info">
+                                        <i class="fas fa-comments"></i> {{ post.comment_count }} Comments
+                                    </span>
+                                </div>
+                                <div class="btn-group">
+                                    <a href="{% url 'blog:post_edit' slug=post.slug %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                    <a href="{% url 'blog:post_delete' slug=post.slug %}" class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </a>
+                                </div>
+                            </div>
+                            {% endfor %}
+
+                            {% if posts.has_other_pages %}
+                            <nav aria-label="Page navigation" class="mt-4">
+                                <ul class="pagination justify-content-center">
+                                    {% if posts.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ posts.previous_page_number }}">&laquo; Previous</a>
+                                    </li>
+                                    {% endif %}
+
+                                    {% for num in posts.paginator.page_range %}
+                                        {% if posts.number == num %}
+                                        <li class="page-item active">
+                                            <span class="page-link">{{ num }}</span>
+                                        </li>
+                                        {% else %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                        </li>
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    {% if posts.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ posts.next_page_number }}">Next &raquo;</a>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                            {% endif %}
+                        {% else %}
+                            <p class="text-muted text-center">You haven't created any posts yet.</p>
+                            <div class="d-grid">
+                                <a href="{% url 'blog:post_create' %}" class="btn btn-primary">Create Your First Post</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Comments Section -->
+                <div class="row">
+                    <!-- Comments on My Posts -->
+                    <div class="col-md-6">
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-comment-dots"></i> Recent Comments on My Posts
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                {% if comments_on_posts %}
+                                    {% for comment in comments_on_posts %}
+                                    <div class="comment-item {% if not forloop.last %}border-bottom mb-3{% endif %}">
+                                        <p class="mb-1">{{ comment.content }}</p>
+                                        <p class="text-muted small mb-0">
+                                            By <strong>{{ comment.author.username }}</strong> on 
+                                            <a href="{% url 'blog:post_detail' slug=comment.post.slug %}">{{ comment.post.title }}</a>
+                                            <br>
+                                            <i class="fas fa-clock"></i> {{ comment.created_at|date:"M j, Y" }} at {{ comment.created_at|time:"g:i A" }}
+                                        </p>
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <p class="text-muted text-center">No comments on your posts yet.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- My Comments -->
+                    <div class="col-md-6">
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-comments"></i> My Recent Comments
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                {% if comments %}
+                                    {% for comment in comments %}
+                                    <div class="comment-item {% if not forloop.last %}border-bottom mb-3{% endif %}">
+                                        <p class="mb-1">{{ comment.content }}</p>
+                                        <p class="text-muted small mb-0">
+                                            On <a href="{% url 'blog:post_detail' slug=comment.post.slug %}">{{ comment.post.title }}</a>
+                                            <br>
+                                            <i class="fas fa-clock"></i> {{ comment.created_at|date:"M j, Y" }} at {{ comment.created_at|time:"g:i A" }}
+                                        </p>
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <p class="text-muted text-center">You haven't made any comments yet.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.avatar-circle {
+    width: 80px;
+    height: 80px;
+    background-color: #f8f9fa;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.welcome-banner {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    border-radius: 15px;
+    color: white;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.welcome-banner .display-4 {
+    font-weight: 600;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.welcome-banner .lead {
+    color: rgba(255,255,255,0.9);
+}
+
+.event-item {
+    padding: 1rem;
+    border-radius: 8px;
+    background-color: rgba(255,255,255,0.5);
+    margin-bottom: 1rem;
+    transition: transform 0.2s;
+}
+
+.event-item:hover {
+    transform: translateY(-2px);
+    background-color: rgba(255,255,255,0.8);
+}
+
+.event-item:last-child {
+    margin-bottom: 0;
+}
+</style>
+{% endblock %} 

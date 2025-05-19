@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Sign Out" %}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white">
+                    <h1 class="h4 mb-0">
+                        <i class="fas fa-sign-out-alt"></i> {% trans "Sign Out" %}
+                    </h1>
+                </div>
+                <div class="card-body text-center py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-user-circle fa-4x text-muted"></i>
+                    </div>
+                    <h5 class="mb-4">{% trans 'Are you sure you want to sign out?' %}</h5>
+                    <p class="text-muted mb-4">You are currently logged in as <strong>{{ user.username }}</strong></p>
+
+                    <form method="post" action="{% url 'account_logout' %}">
+                        {% csrf_token %}
+                        {% if redirect_field_value %}
+                        <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
+                        {% endif %}
+                        <div class="d-grid gap-3">
+                            <button type="submit" class="btn btn-danger btn-lg">
+                                <i class="fas fa-sign-out-alt"></i> {% trans 'Confirm Sign Out' %}
+                            </button>
+                            <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> {% trans 'Cancel' %}
+                            </a>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer bg-light">
+                    <div class="alert alert-info mb-0" role="alert">
+                        <i class="fas fa-info-circle"></i> After signing out, you'll need to sign in again to access your account features.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border: none;
+}
+.card-header {
+    border-bottom: none;
+}
+.card-footer {
+    border-top: none;
+    padding: 1.5rem;
+}
+.btn-lg {
+    padding: 1rem 2rem;
+}
+.alert-info {
+    background-color: rgba(23, 162, 184, 0.1);
+    border: none;
+    border-left: 4px solid #17a2b8;
+}
+.fa-user-circle {
+    margin-bottom: 1.5rem;
+}
+</style>
+{% endblock %} 

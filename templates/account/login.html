@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% trans "Sign In" %}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h1 class="h4 mb-0">{% trans "Sign In" %}</h1>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-4">{% trans "Don't have an account yet?" %} 
+                        <a href="{{ signup_url }}" class="link-primary">{% trans "Sign Up" %}</a>
+                    </p>
+
+                    <form class="login" method="POST" action="{% url 'account_login' %}">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        {% if redirect_field_value %}
+                        <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+                        {% endif %}
+                        <div class="d-grid gap-2 mt-4">
+                            <button class="btn btn-primary btn-lg" type="submit">
+                                <i class="fas fa-sign-in-alt"></i> {% trans "Sign In" %}
+                            </button>
+                        </div>
+                        <div class="text-center mt-3">
+                            <a class="link-secondary" href="{% url 'account_reset_password' %}">
+                                <i class="fas fa-key"></i> {% trans "Forgot Password?" %}
+                            </a>
+                        </div>
+                    </form>
+
+                    <div class="mt-4">
+                        <div class="alert alert-info" role="alert">
+                            <h5 class="alert-heading"><i class="fas fa-info-circle"></i> Welcome Back!</h5>
+                            <p class="mb-0">Sign in to access your personalized dashboard, manage your content, and participate in the community.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.login .form-group {
+    margin-bottom: 1.5rem;
+}
+.login .form-control {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+}
+.login .btn-primary {
+    padding: 0.75rem 1.5rem;
+}
+.alert-info {
+    background-color: rgba(0, 123, 255, 0.1);
+    border: none;
+    border-left: 4px solid #007bff;
+}
+</style>
+{% endblock %} 

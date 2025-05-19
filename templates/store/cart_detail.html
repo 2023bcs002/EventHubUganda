@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load currency_tags %}
+
+{% block title %}Shopping Cart{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="mb-4">Shopping Cart</h1>
+
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Cart Items -->
+    {% if cart_items %}
+    <div class="table-responsive mb-4">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            {% if item.product.image %}
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="img-thumbnail me-3" style="width: 50px;">
+                            {% endif %}
+                            <div>
+                                <h6 class="mb-0">{{ item.product.name }}</h6>
+                                <small class="text-muted">{{ item.product.category.name }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>{% currency_symbol %} {{ item.product.price|ugx }}</td>
+                    <td>
+                        <form method="post" action="{% url 'store:cart_update' item.product.id %}" class="d-flex align-items-center">
+                            {% csrf_token %}
+                            <input type="number" name="quantity" value="{{ item.quantity }}" 
+                                   min="1" max="{{ item.product.stock }}" 
+                                   class="form-control form-control-sm" style="width: 70px;">
+                            <button type="submit" class="btn btn-sm btn-outline-secondary ms-2">Update</button>
+                        </form>
+                    </td>
+                    <td>{% currency_symbol %} {{ item.total|ugx }}</td>
+                    <td>
+                        <form method="post" action="{% url 'store:cart_remove' item.product.id %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-danger">
+                                <i class="fas fa-trash"></i> Remove
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            
+            <tfoot>
+                <tr>
+                    <td colspan="3" class="text-end"><strong>Subtotal:</strong></td>
+                    <td colspan="2"><strong>{% currency_symbol %} {{ cart_total|ugx }}</strong></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <!-- Shipping Information Form with Contact -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Shipping & Contact Information</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" action="{% url 'store:place_order_from_cart' %}" class="row g-3">
+                {% csrf_token %}
+                <div class="col-md-6">
+                    <label for="full_name" class="form-label">Full Name*</label>
+                    <input type="text" class="form-control" id="full_name" name="full_name" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="phone" class="form-label">Phone Number*</label>
+                    <input type="tel" class="form-control" id="phone" name="phone" required>
+                </div>
+                <div class="col-12">
+                    <label for="address" class="form-label">Shipping Address*</label>
+                    <textarea class="form-control" id="address" name="address" rows="3" required></textarea>
+                </div>
+                <div class="col-12 d-flex justify-content-between align-items-center">
+                    <a href="{% url 'store:product_list' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left me-2"></i>Continue Shopping
+                    </a>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-shopping-cart me-2"></i>Place Order Now
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
+        <h3>Your cart is empty</h3>
+        <p class="text-muted">Add some products to your cart and they will appear here.</p>
+        <a href="{% url 'store:product_list' %}" class="btn btn-primary mt-3">
+            <i class="fas fa-arrow-left me-2"></i>Continue Shopping
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %} 

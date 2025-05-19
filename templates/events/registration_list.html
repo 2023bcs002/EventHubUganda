@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Event Center{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-warning">
+            <h2 class="mb-0">
+                <i class="fas fa-calendar-alt"></i> Event Center
+            </h2>
+        </div>
+        <div class="card-body">
+            <!-- Action Buttons -->
+            <div class="d-grid gap-3 mb-4">
+                <a href="{% url 'events:event_create' %}" class="btn btn-warning btn-lg">
+                    <i class="fas fa-plus-circle"></i> Create New Event
+                </a>
+                <a href="{% url 'events:event_list' %}" class="btn btn-outline-warning btn-lg">
+                    <i class="fas fa-search"></i> Browse All Events
+                </a>
+            </div>
+
+            <!-- Registered Events Section -->
+            <div class="mb-4">
+                <h3 class="mb-3">My Registered Events</h3>
+                {% if registrations %}
+                    <div class="list-group">
+                        {% for registration in registrations %}
+                            <a href="{% url 'events:event_detail' registration.event.slug %}" 
+                               class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="mb-1">{{ registration.event.title }}</h5>
+                                        <p class="mb-1 text-muted">
+                                            <i class="far fa-calendar"></i> {{ registration.event.start_date|date:"F d, Y" }}
+                                            <i class="far fa-clock ml-2"></i> {{ registration.event.start_date|time:"g:i A" }}
+                                        </p>
+                                    </div>
+                                    <span class="badge {% if registration.status == 'confirmed' %}bg-success{% elif registration.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %}">
+                                        {{ registration.get_status_display }}
+                                    </span>
+                                </div>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <p class="text-muted mb-3">You haven't registered for any events yet.</p>
+                        <a href="{% url 'events:event_list' %}" class="btn btn-warning">
+                            <i class="fas fa-calendar-plus"></i> Find Events to Join
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Upcoming Events Section -->
+            <div>
+                <h3 class="mb-3">Upcoming Events</h3>
+                {% if upcoming_events %}
+                    <div class="list-group">
+                        {% for event in upcoming_events %}
+                            <a href="{% url 'events:event_detail' event.slug %}" 
+                               class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="mb-1">{{ event.title }}</h5>
+                                        <p class="mb-1 text-muted">
+                                            <i class="far fa-calendar"></i> {{ event.start_date|date:"F d, Y" }}
+                                            <i class="far fa-clock ml-2"></i> {{ event.start_date|time:"g:i A" }}
+                                            {% if event.spots_left %}
+                                                <span class="text-success ml-2">
+                                                    <i class="fas fa-user-friends"></i> {{ event.spots_left }} spots left
+                                                </span>
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                    <i class="fas fa-chevron-right text-muted"></i>
+                                </div>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <p class="text-muted">No upcoming events available at the moment.</p>
+                        <p class="text-muted">Check back later for new events!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Font Awesome for icons -->
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<style>
+    .btn-warning {
+        background-color: #ffc107;
+        border-color: #ffc107;
+        color: #000;
+    }
+    .btn-warning:hover {
+        background-color: #ffca2c;
+        border-color: #ffc720;
+        color: #000;
+    }
+    .btn-outline-warning {
+        color: #ffc107;
+        border-color: #ffc107;
+    }
+    .btn-outline-warning:hover {
+        background-color: #ffc107;
+        color: #000;
+    }
+    .card-header {
+        background-color: #ffc107 !important;
+        color: #000;
+    }
+    .list-group-item:hover {
+        background-color: #fff9e6;
+    }
+</style>
+{% endblock %}
+{% endblock %} 
