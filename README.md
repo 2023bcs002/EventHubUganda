@@ -277,7 +277,7 @@ pip install -r requirements.txt
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/2023bcs002/EventBlogsShopping.git
+   git clone https://github.com/2023bcs002/EventHubUganda.git
    cd EventHubUganda
    ```
 
@@ -353,15 +353,15 @@ We welcome contributions from everyone! If you would like to improve this projec
 
 1. **Fork the repository**
 
-   - Go to [https://github.com/2023bcs002/EventBlogsShopping](https://github.com/2023bcs002/EventBlogsShopping) and click the "Fork" button at the top right to create your own copy of the repository.
+   - Go to [https://github.com/2023bcs002/EventHubUganda](https://github.com/2023bcs002/EventHubUganda) and click the "Fork" button at the top right to create your own copy of the repository.
 
 2. **Clone your fork to your local machine**
 
    - Replace `<your-username>` with **your own GitHub username** (the one you used to fork the repository).
 
    ```bash
-   git clone https://github.com/<your-username>/EventBlogsShopping.git
-   cd EventBlogsShopping
+   git clone https://github.com/<your-username>/EventHubUganda.git
+   cd EventHubUganda
    ```
 
 3. **Create a new branch** for your feature or bugfix
