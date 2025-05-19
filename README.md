@@ -19,9 +19,6 @@ Bachelor of Science in Computer Science
 - [Requirements](#requirements)
 - [How to Run the Project](#how-to-run-the-project)
 - [Example Files and Structure](#example-files-and-structure)
-- [Data Validation and Error Handling](#data-validation-and-error-handling)
-- [Design and Styling](#design-and-styling)
-- [Documentation](#documentation)
 - [How to Contribute](#how-to-contribute)
 - [Acknowledgements](#acknowledgements)
 
@@ -95,7 +92,7 @@ Event Hub Uganda is a robust Django web application designed for event managemen
 
 ### 8. Documentation
 
-- **Comprehensive README:** This file explains the project structure, features, and setup instructions.
+- **README.md:** This file explains the project structure, features, and setup instructions.
 - **Code Comments:** The codebase is well-commented for clarity and maintainability.
 - **Benefits:** Makes it easy for new developers or reviewers to understand and contribute to the project.
 
@@ -321,29 +318,6 @@ pip install -r requirements.txt
 - **templates/base.html:** Main layout
 - **static/css/style.css:** Custom styles
 - **django_hello_world/settings.py:** Project settings
-
----
-
-## Data Validation and Error Handling
-
-- All forms and models include validation to prevent invalid data entry.
-- Custom error messages are displayed to users for invalid input.
-- The application includes custom 404 and 500 error pages for a better user experience.
-
----
-
-## Design and Styling
-
-- The application uses a consistent layout with template inheritance.
-- Custom CSS and Bootstrap ensure the site is visually appealing and responsive.
-- User feedback is provided through success and error messages after actions.
-
----
-
-## Documentation
-
-- This README provides a comprehensive overview of the project, setup instructions, and explanations of all major features and concepts.
-- The codebase is commented for clarity and maintainability.
 
 ---
 
